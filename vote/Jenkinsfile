@@ -35,6 +35,7 @@ pipeline {
             steps{
                 echo "Unit testing ..."
                 dir("vote"){
+                    sh "pip install -r requirements.txt"
                     sh "nosetests -v"
                 }                
             }
