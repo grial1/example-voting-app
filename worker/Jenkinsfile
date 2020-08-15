@@ -76,8 +76,6 @@ pipeline {
                         workerImage.push("${env.BRANCH_NAME}")
                     }
                 }
-                //sh "mvn package -DskipTest"
-                //archiveArtifacts artifacts: "**/target/*.jar", fingerprint: true
             }
         }
     }
