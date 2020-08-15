@@ -1,14 +1,16 @@
 pipeline {
     
-    agent {
-        docker {
-            image 'python:2.7.16-slim'
-            args '--user root'
-        }
-    }
+    agent none
+
     stages {
         
         stage("build"){
+            agent {
+                docker {
+                    image 'python:2.7.16-slim'
+                    args '--user root'
+                }
+            }
             when { 
                 changeset "**/vote/**"
             }
@@ -21,6 +23,12 @@ pipeline {
         }
         
         stage("test"){
+            agent {
+                docker {
+                    image 'python:2.7.16-slim'
+                    args '--user root'
+                }
+            }
             when { 
                 changeset "**/vote/**"  
             }
@@ -29,6 +37,24 @@ pipeline {
                 dir("vote"){
                     sh "nosetests -v"
                 }                
+            }
+        }
+        stage("docker-package"){
+            agent any
+            when {
+                branch "master"
+                changeset "**/vote/**"
+            }
+            steps{
+                echo "Packaging into docker container..."
+
+                script {
+                    docker.withRegistry("","dockerLogin"){
+                        def workerImage = docker.build("grial1/vote:v${env.BUILD_ID}","./vote")
+                        workerImage.push()
+                        workerImage.push("${env.BRANCH_NAME}")
+                    }
+                }
             }
         }
     }

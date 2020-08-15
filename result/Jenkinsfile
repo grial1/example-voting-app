@@ -1,13 +1,15 @@
 pipeline {
     
-    agent {
-        docker {
-            image 'node:8.16.0-alpine'
-        }
-    }
+    agent none
+
     stages {
         
         stage("build"){
+            agent {
+                docker {
+                    image 'node:8.16.0-alpine'
+                }
+            }
             when { 
                 changeset "**/result/**"    
             }
@@ -20,6 +22,11 @@ pipeline {
         }
         
         stage("test"){
+            agent {
+                docker {
+                    image 'node:8.16.0-alpine'
+                }
+            }
             when { 
                 changeset "**/result/**"    
             }
@@ -29,6 +36,25 @@ pipeline {
                 {
                     sh "npm install && npm test"
                 }                
+            }
+        }
+
+        stage("docker-package"){
+            agent any
+            when {
+                branch "master"
+                changeset "**/result/**"
+            }
+            steps{
+                echo "Packaging into docker container..."
+
+                script {
+                    docker.withRegistry("","dockerLogin"){
+                        def workerImage = docker.build("grial1/result:v${env.BUILD_ID}","./result")
+                        workerImage.push()
+                        workerImage.push("${env.BRANCH_NAME}")
+                    }
+                }
             }
         }
 
