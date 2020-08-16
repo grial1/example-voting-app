@@ -188,6 +188,21 @@ pipeline {
             }
         }
 
+        stage("deploy to dev"){
+            agent any
+            when {
+                branch "master"
+            }
+            steps{
+                
+                echo "Deploying instavoteapp with docker compose"
+                sh "docker-compose up -d"
+                
+                }
+            }
+        }
+
+
     }
     post {
         always {
