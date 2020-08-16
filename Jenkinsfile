@@ -196,14 +196,10 @@ pipeline {
             steps{
                 
                 echo "Deploying instavoteapp with docker compose"
-                sh 
                 sh "docker-compose up -d"
                 
                 }
             }
-        
-
-
     }
     post {
         always {
