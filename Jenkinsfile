@@ -169,6 +169,21 @@ pipeline {
                 }                
             }
         }
+
+        stage("vote-integration-test"){
+            agent any
+            when { 
+                changeset "**/vote/**"
+                branch 'master'  
+            }
+            steps{
+                echo "Integration tests ..."
+                dir("vote"){
+                    sh 'integration_test.sh'
+                }                
+            }
+        }
+
         stage("vote-docker-package"){
             agent any
             when {
